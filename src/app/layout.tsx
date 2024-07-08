@@ -1,3 +1,4 @@
+import { Provider } from "@/components/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -18,7 +19,7 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={cn(inter.className, "max-w-7xl mx-auto")}>
-				{children}
+				<Provider>{children}</Provider>
 			</body>
 		</html>
 	);
