@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -16,7 +17,14 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={inter.className}>{children}</body>
+			<body
+				className={cn(
+					inter.className,
+					"max-w-7xl mx-auto bg-neutral-900 text-neutral-50",
+				)}
+			>
+				{children}
+			</body>
 		</html>
 	);
 }
