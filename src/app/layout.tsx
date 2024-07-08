@@ -17,12 +17,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body
-				className={cn(
-					inter.className,
-					"max-w-7xl mx-auto bg-neutral-900 text-neutral-50",
-				)}
-			>
+			<body className={cn(inter.className, "max-w-7xl mx-auto")}>
 				{children}
 			</body>
 		</html>
