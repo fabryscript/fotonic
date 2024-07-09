@@ -1,11 +1,21 @@
+"use client";
+
+import WalletsDrawerContent from "@/components/drawers/wallets";
 import { Button } from "@/components/ui/button";
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
+import { useChains, useConnect } from "@quirks/react";
 import { ArrowDown } from "lucide-react";
 
 export default function Home() {
+	const { connected } = useConnect();
+	const { accounts } = useChains();
+
 	return (
 		<div className="flex w-full items-start justify-center h-screen gap-8 flex-col max-w-3xl mx-auto">
-			<h1 className="text-5xl font-semibold">Transfer.</h1>
+			<h1 className="text-5xl font-semibold">
+				Welcome, {JSON.stringify(accounts)}
+			</h1>
 			<div className="flex flex-col gap-4 w-full">
 				<div className="flex items-center justify-between h-[200px] rounded-md w-full py-10">
 					<div className="flex flex-col gap-2">
@@ -43,14 +53,30 @@ export default function Home() {
 						<div className="rounded-full w-24 h-24 bg-neutral-900" />
 					</div>
 				</div>
-				<Button
-					type="button"
-					size="lg"
-					variant="default"
-					className="w-full h-14 text-xl"
-				>
-					Review transfer
-				</Button>
+				{connected ? (
+					<Button
+						type="button"
+						size="lg"
+						variant="default"
+						className="w-full h-14 text-xl"
+					>
+						Review transfer
+					</Button>
+				) : (
+					<Drawer direction="right">
+						<DrawerTrigger asChild>
+							<Button
+								type="button"
+								size="lg"
+								variant="default"
+								className="w-full h-14 text-xl"
+							>
+								Connect wallet
+							</Button>
+						</DrawerTrigger>
+						<WalletsDrawerContent />
+					</Drawer>
+				)}
 			</div>
 		</div>
 	);
