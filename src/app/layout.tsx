@@ -1,3 +1,4 @@
+import Navbar from "@/components/navbar";
 import { Provider } from "@/components/providers";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -19,7 +20,10 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={cn(inter.className, "max-w-7xl mx-auto")}>
-				<Provider>{children}</Provider>
+				<Provider>
+					<Navbar />
+					{children}
+				</Provider>
 			</body>
 		</html>
 	);

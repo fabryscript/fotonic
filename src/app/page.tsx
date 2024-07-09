@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useChains, useConnect } from "@quirks/react";
 import { ArrowDown } from "lucide-react";
 
+const compress = (address: string) =>
+	`${address.slice(0, 4)}...${address.slice(-4)}`;
+
 export default function Home() {
 	const { connected } = useConnect();
 	const { accounts } = useChains();
@@ -14,7 +17,10 @@ export default function Home() {
 	return (
 		<div className="flex w-full items-start justify-center h-screen gap-8 flex-col max-w-3xl mx-auto">
 			<h1 className="text-5xl font-semibold">
-				Welcome, {JSON.stringify(accounts)}
+				Welcome{accounts.length > 0 && ", "}
+				{accounts.map(({ bech32Address }) => (
+					<span key={bech32Address}>{compress(bech32Address)}</span>
+				))}
 			</h1>
 			<div className="flex flex-col gap-4 w-full">
 				<div className="flex items-center justify-between h-[200px] rounded-md w-full py-10">
