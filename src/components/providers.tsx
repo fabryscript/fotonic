@@ -1,11 +1,6 @@
 "use client";
 
-import {
-	cosmoshub,
-	cosmoshubtestnetAssetList,
-	osmosis,
-	osmosistestnetAssetList,
-} from "@nabla-studio/chain-registry";
+import { osmosis, osmosisAssetList } from "@nabla-studio/chain-registry";
 import { QuirksConfig, QuirksNextProvider } from "@quirks/react";
 import type { Config } from "@quirks/store";
 import {
@@ -17,8 +12,8 @@ import type { PropsWithChildren } from "react";
 
 const config: Config = {
 	wallets: [keplrExtension, leapExtension, cosmostationExtension],
-	chains: [osmosis, cosmoshub],
-	assetsLists: [osmosistestnetAssetList, cosmoshubtestnetAssetList],
+	chains: [osmosis],
+	assetsLists: [osmosisAssetList],
 };
 
 export const Provider = ({ children }: PropsWithChildren<unknown>) => {
