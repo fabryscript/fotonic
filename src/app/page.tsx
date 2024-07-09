@@ -11,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useChain, useChains, useConfig, useConnect } from "@quirks/react";
+import { useChains, useConfig, useConnect } from "@quirks/react";
 import { broadcast, getAddress, sign } from "@quirks/store";
 import { ArrowDown } from "lucide-react";
 import Image from "next/image";
@@ -144,7 +144,6 @@ function TokenSelector({ direction }: TokenSelectorProps) {
 
 	const [amount, setAmount] = useState<string>("");
 	const { accounts } = useChains();
-
 	const { assetsLists } = useConfig();
 
 	return (
