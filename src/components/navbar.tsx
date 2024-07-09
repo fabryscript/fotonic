@@ -6,7 +6,7 @@ import { Drawer, DrawerTrigger } from "./ui/drawer";
 
 export default function Navbar() {
 	return (
-		<div className="flex items-center justify-between py-4">
+		<div className="flex items-center justify-between py-4 w-full px-20">
 			<div />
 			<Drawer direction="right">
 				<DrawerTrigger asChild>

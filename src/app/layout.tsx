@@ -19,7 +19,12 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={cn(inter.className, "max-w-7xl mx-auto")}>
+			<body
+				className={cn(
+					inter.className,
+					"flex flex-col items-center justify-center",
+				)}
+			>
 				<Provider>
 					<Navbar />
 					{children}
