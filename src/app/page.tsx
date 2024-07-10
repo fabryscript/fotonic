@@ -5,6 +5,7 @@ import TokenSelector from "@/components/home/token-selector";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 import { useIbcSend } from "@/lib/ibc-send";
+import { fromAmountInputStore } from "@/stores/fromAmountInput";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
 import { useChains, useConnect } from "@quirks/react";
 import { useSelector } from "@xstate/react";
@@ -20,6 +21,10 @@ export default function Home() {
 	const { connected, wallet, walletName } = useConnect();
 	const { accountName } = useChains();
 	const selectedAsset = useSelector(selectedAssetsStore, (s) => s.context.from);
+	const fromAmountInput = useSelector(
+		fromAmountInputStore,
+		(s) => s.context.value,
+	);
 
 	const [{ fromChain, toChain }] = useQueryStates({
 		fromChain: parseAsString,
@@ -29,7 +34,7 @@ export default function Home() {
 	const { ibcSend, isLoading } = useIbcSend({
 		fromChain,
 		toChain,
-		amount: "0.01",
+		amount: fromAmountInput,
 		denom: selectedAsset?.base,
 		sourceChannel: "",
 		sourcePort: "",
