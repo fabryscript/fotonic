@@ -18,7 +18,7 @@ export default function AmountAvailable({ chain }: AmountAvailableProps) {
 		[selectedAsset?.denom_units, selectedAsset?.symbol],
 	);
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, isError, error } = useQuery({
 		queryKey: ["balance", selectedAsset?.base],
 		queryFn: async () => {
 			const res = await fetch(
@@ -31,6 +31,14 @@ export default function AmountAvailable({ chain }: AmountAvailableProps) {
 
 	if (isLoading) {
 		return <div className="w-32 h-6 rounded-md bg-neutral-400 animate-pulse" />;
+	}
+
+	if (isError || !data) {
+		return (
+			<span className="font-medium text-neutral-500">
+				Error while fetching the balance: {error?.message}
+			</span>
+		);
 	}
 
 	return (
