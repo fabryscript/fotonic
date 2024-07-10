@@ -1,26 +1,26 @@
 "use client";
 
-import { LOADED_CHAINS } from "@/lib/configs";
-import useDirectionalChains from "@/lib/hooks/use-directional-chains";
-import { useDisclosure } from "@/lib/hooks/use-disclosure";
-import type { Direction } from "@/lib/types";
-import { selectedAssetsStore } from "@/stores/selectedAssets";
-import type { Asset } from "@nabla-studio/chain-registry";
-import { useChains, useConfig } from "@quirks/react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useSelector } from "@xstate/react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "../ui/select";
-import AmountAvailable from "./token-selector/amount-available";
+} from "@/components/ui/select";
+import { LOADED_CHAINS } from "@/lib/configs";
+import useDirectionalChains from "@/lib/hooks/use-directional-chains";
+import { useDisclosure } from "@/lib/hooks/use-disclosure";
+import type { Direction } from "@/lib/types";
+import { selectedAssetsStore } from "@/stores/selectedAssets";
+import type { Asset } from "@nabla-studio/chain-registry";
+import { useConfig } from "@quirks/react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useSelector } from "@xstate/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useRef, useState } from "react";
+import AmountAvailable from "./amount-available";
 
 interface TokenSelectorProps {
 	direction: Direction;
