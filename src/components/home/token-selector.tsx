@@ -7,6 +7,7 @@ import { useChains, useConfig } from "@quirks/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@xstate/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
@@ -31,6 +32,8 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 		direction === "From" ? "toChain" : "fromChain",
 	);
 
+	const router = useRouter();
+
 	const selectedAsset = useSelector(
 		selectedAssetsStore,
 		(s) => s.context[direction === "From" ? "from" : "to"],
@@ -38,10 +41,11 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 
 	const onChainChange = useCallback(
 		(value: string) => {
+			router.refresh();
 			selectedAssetsStore.send({ type: "remove", direction });
 			setChain(value);
 		},
-		[direction, setChain],
+		[direction, router, setChain],
 	);
 
 	const { isOpen: isAssetSelectionOpen, toggle: toggleAssetSelection } =
@@ -180,7 +184,9 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 								setAmount(e.target.value);
 							}}
 						/>
-						{selectedAsset && <AmountAvailable direction={direction} />}
+						{selectedAsset && chain && (
+							<AmountAvailable direction={direction} chain={chain} />
+						)}
 					</>
 				) : (
 					<span className="text-5xl">1923</span>
