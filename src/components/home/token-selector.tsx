@@ -79,7 +79,7 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 	);
 
 	return (
-		<div className="flex flex-col items-center justify-between h-[200px] rounded-md w-full py-10">
+		<div className="flex flex-col items-center justify-between rounded-md w-full py-10">
 			<div className="flex items-center w-full justify-between gap-12">
 				<Select value={chain ? chain : undefined} onValueChange={onChainChange}>
 					<SelectTrigger>
@@ -106,70 +106,72 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 							})}
 					</SelectContent>
 				</Select>
-				<Select
-					value={selectedAsset?.base}
-					disabled={!chain}
-					onValueChange={(base) => {
-						selectedAssetsStore.send({
-							type: "set",
-							// biome-ignore lint/style/noNonNullAssertion: <explanation>
-							asset: queryAssetFromAssetList(chain!, base)!,
-							direction,
-						});
-					}}
-					open={isAssetSelectionOpen}
-					onOpenChange={toggleAssetSelection}
-				>
-					<SelectTrigger className="relative">
-						{selectedAsset && !isAssetSelectionOpen && (
-							<div className="absolute left-0 h-10 pl-3 flex">
-								<AssetTicker {...selectedAsset} />
-							</div>
-						)}
-						<SelectValue placeholder={`${direction} asset`} />
-					</SelectTrigger>
-					<SelectContent className="relative">
-						<>
-							<div
-								ref={scrollableRef}
-								className="h-full w-full overflow-scroll no-scrollbar"
-							>
-								<div
-									style={{
-										height: `${rowVirtualizer.getTotalSize()}px`,
-										position: "relative",
-										width: "100%",
-									}}
-								>
-									{chainAssets &&
-										rowVirtualizer.getVirtualItems().map((virtualItem) => {
-											const asset = chainAssets[virtualItem.index];
-
-											return (
-												<SelectItem
-													key={`${asset.symbol} ${virtualItem.index}`}
-													value={asset.base}
-													style={{
-														position: "absolute",
-														top: 0,
-														left: 0,
-														width: "100%",
-														height: `${virtualItem.size}px`,
-														transform: `translateY(${virtualItem.start}px)`,
-													}}
-												>
-													<AssetTicker {...asset} />
-												</SelectItem>
-											);
-										})}
+				{direction === "From" && (
+					<Select
+						value={selectedAsset?.base}
+						disabled={!chain}
+						onValueChange={(base) => {
+							selectedAssetsStore.send({
+								type: "set",
+								// biome-ignore lint/style/noNonNullAssertion: <explanation>
+								asset: queryAssetFromAssetList(chain!, base)!,
+								direction,
+							});
+						}}
+						open={isAssetSelectionOpen}
+						onOpenChange={toggleAssetSelection}
+					>
+						<SelectTrigger className="relative">
+							{selectedAsset && !isAssetSelectionOpen && (
+								<div className="absolute left-0 h-10 pl-3 flex">
+									<AssetTicker {...selectedAsset} />
 								</div>
-							</div>
-						</>
-					</SelectContent>
-				</Select>
+							)}
+							<SelectValue placeholder={`${direction} asset`} />
+						</SelectTrigger>
+						<SelectContent className="relative">
+							<>
+								<div
+									ref={scrollableRef}
+									className="h-full w-full overflow-scroll no-scrollbar"
+								>
+									<div
+										style={{
+											height: `${rowVirtualizer.getTotalSize()}px`,
+											position: "relative",
+											width: "100%",
+										}}
+									>
+										{chainAssets &&
+											rowVirtualizer.getVirtualItems().map((virtualItem) => {
+												const asset = chainAssets[virtualItem.index];
+
+												return (
+													<SelectItem
+														key={`${asset.symbol} ${virtualItem.index}`}
+														value={asset.base}
+														style={{
+															position: "absolute",
+															top: 0,
+															left: 0,
+															width: "100%",
+															height: `${virtualItem.size}px`,
+															transform: `translateY(${virtualItem.start}px)`,
+														}}
+													>
+														<AssetTicker {...asset} />
+													</SelectItem>
+												);
+											})}
+									</div>
+								</div>
+							</>
+						</SelectContent>
+					</Select>
+				)}
 			</div>
 			<div className="flex flex-col w-full">
-				{direction === "From" ? (
+				{direction === "From" && (
 					<>
 						<Input
 							type="number"
@@ -188,8 +190,6 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 							<AmountAvailable direction={direction} chain={chain} />
 						)}
 					</>
-				) : (
-					<span className="text-5xl">1923</span>
 				)}
 			</div>
 		</div>
