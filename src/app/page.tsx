@@ -14,9 +14,6 @@ import Image from "next/image";
 import { parseAsString, useQueryStates } from "nuqs";
 import { useMemo } from "react";
 
-export const compress = (address: string) =>
-	`${address.slice(0, 4)}...${address.slice(-4)}`;
-
 export default function Home() {
 	const { connected, wallet, walletName } = useConnect();
 	const { accountName } = useChains();
