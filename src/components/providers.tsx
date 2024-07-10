@@ -91,6 +91,7 @@ import {
 	keplrExtension,
 	leapExtension,
 } from "@quirks/wallets";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
 
 const config: Config = {
@@ -185,9 +186,12 @@ const config: Config = {
 };
 
 export const Provider = ({ children }: PropsWithChildren<unknown>) => {
+	const qc = new QueryClient();
 	return (
 		<QuirksNextProvider>
-			<QuirksConfig config={config}>{children}</QuirksConfig>
+			<QueryClientProvider client={qc}>
+				<QuirksConfig config={config}>{children}</QuirksConfig>
+			</QueryClientProvider>
 		</QuirksNextProvider>
 	);
 };
