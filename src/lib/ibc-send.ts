@@ -18,13 +18,31 @@ export const useIbcSend = ({
 	amount,
 	sourcePort,
 	denom,
-}: UseIbcSend) => {
+}: Partial<UseIbcSend>) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const ibcSend = useCallback(async () => {
 		if (!fromChain || !toChain) {
 			toast("Transaction Error", {
 				description: "Source or destination chain missing",
+				important: true,
+				className: "!border-red-500 !text-red-700 !font-bold",
+			});
+			return;
+		}
+
+		if (!sourceChannel || !sourcePort) {
+			toast("Transaction Error", {
+				description: "Source port or source channel missing",
+				important: true,
+				className: "!border-red-500 !text-red-700 !font-bold",
+			});
+			return;
+		}
+
+		if (!amount || !denom) {
+			toast("Transaction Error", {
+				description: "Amount or IBC denom missing",
 				important: true,
 				className: "!border-red-500 !text-red-700 !font-bold",
 			});
