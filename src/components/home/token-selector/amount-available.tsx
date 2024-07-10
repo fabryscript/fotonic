@@ -31,8 +31,6 @@ export default function AmountAvailable({ chain }: AmountAvailableProps) {
 		},
 	});
 
-	memoKeys.memo_keys;
-
 	if (isLoading) {
 		return <div className="w-32 h-6 rounded-md bg-neutral-400 animate-pulse" />;
 	}
