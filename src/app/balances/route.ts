@@ -38,7 +38,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
 
 	const chainAddress = getChain(chain).address;
 
-	if (!chainAddress) throw new BalanceQueryError();
+	if (!chainAddress) throw new BalanceQueryError(`Missing ${chain} address`);
 
 	const { balance } = await client.cosmos.bank.v1beta1.balance({
 		address: chainAddress,
