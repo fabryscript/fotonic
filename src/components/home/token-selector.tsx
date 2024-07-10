@@ -1,11 +1,14 @@
 "use client";
 
+import { useDisclosure } from "@/lib/hooks/use-disclosure";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
+import type { Asset } from "@nabla-studio/chain-registry";
 import { useChains, useConfig } from "@quirks/react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@xstate/react";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import {
 	Select,
@@ -24,10 +27,13 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 	const [chain, setChain] = useQueryState(
 		direction === "From" ? "fromChain" : "toChain",
 	);
+	const [oppositeChain] = useQueryState(
+		direction === "From" ? "toChain" : "fromChain",
+	);
 
-	const selectedAssetBase = useSelector(
+	const selectedAsset = useSelector(
 		selectedAssetsStore,
-		(s) => s.context[direction === "From" ? "from" : "to"]?.base,
+		(s) => s.context[direction === "From" ? "from" : "to"],
 	);
 
 	const onChainChange = useCallback(
@@ -38,9 +44,27 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 		[direction, setChain],
 	);
 
+	const { isOpen: isAssetSelectionOpen, toggle: toggleAssetSelection } =
+		useDisclosure();
+
 	const [amount, setAmount] = useState<string>("");
 	const { accounts } = useChains();
 	const { assetsLists } = useConfig();
+
+	const chainAssets = useMemo(() => {
+		if (!chain) return;
+		return assetsLists.find((list) => list.chain_name === chain)?.assets;
+	}, [assetsLists, chain]);
+
+	const scrollableRef = useRef(null);
+
+	const rowVirtualizer = useVirtualizer({
+		count: chainAssets?.length ?? 0,
+		getScrollElement: () => scrollableRef.current,
+		estimateSize: () => 40,
+		enabled: isAssetSelectionOpen,
+		overscan: 5,
+	});
 
 	const queryAssetFromAssetList = useCallback(
 		(chainId: string, base: string) =>
@@ -61,20 +85,26 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 						/>
 					</SelectTrigger>
 					<SelectContent>
-						{accounts.map(({ chainName, chainId }) => (
-							<SelectItem
-								key={chainId}
-								value={chainName}
-								className="capitalize"
-							>
-								{chainName}
-							</SelectItem>
-						))}
+						{accounts
+							.filter((ac) =>
+								oppositeChain ? ac.chainName !== oppositeChain : true,
+							)
+							.map(({ chainName, chainId }) => {
+								return (
+									<SelectItem
+										key={chainId}
+										value={chainName}
+										className="capitalize"
+									>
+										{chainName}
+									</SelectItem>
+								);
+							})}
 					</SelectContent>
 				</Select>
 				<Select
+					value={selectedAsset?.base}
 					disabled={!chain}
-					value={selectedAssetBase}
 					onValueChange={(base) => {
 						selectedAssetsStore.send({
 							type: "set",
@@ -83,38 +113,54 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 							direction,
 						});
 					}}
+					open={isAssetSelectionOpen}
+					onOpenChange={toggleAssetSelection}
 				>
-					<SelectTrigger>
+					<SelectTrigger className="relative">
+						{selectedAsset && !isAssetSelectionOpen && (
+							<div className="absolute left-0 h-10 pl-3 flex">
+								<AssetTicker {...selectedAsset} />
+							</div>
+						)}
 						<SelectValue placeholder={`${direction} asset`} />
 					</SelectTrigger>
-					<SelectContent>
-						{assetsLists
-							.find((list) => list.chain_name === chain)
-							?.assets.map((asset, i) => {
-								const { name, symbol, logo_URIs, base } = asset;
-								const logo = logo_URIs?.svg ?? logo_URIs?.png;
-								return (
-									<SelectItem
-										key={`${symbol} ${
-											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-											i
-										}`}
-										value={base}
-									>
-										<div className="flex items-center gap-2">
-											{logo && (
-												<Image
-													src={logo}
-													alt={`${symbol} logo`}
-													width={24}
-													height={24}
-												/>
-											)}
-											{name}
-										</div>
-									</SelectItem>
-								);
-							})}
+					<SelectContent className="relative">
+						<>
+							<div
+								ref={scrollableRef}
+								className="h-full w-full overflow-scroll no-scrollbar"
+							>
+								<div
+									style={{
+										height: `${rowVirtualizer.getTotalSize()}px`,
+										position: "relative",
+										width: "100%",
+									}}
+								>
+									{chainAssets &&
+										rowVirtualizer.getVirtualItems().map((virtualItem) => {
+											const asset = chainAssets[virtualItem.index];
+
+											return (
+												<SelectItem
+													key={`${asset.symbol} ${virtualItem.index}`}
+													value={asset.base}
+													style={{
+														position: "absolute",
+														top: 0,
+														left: 0,
+														width: "100%",
+														height: `${virtualItem.size}px`,
+														transform: `translateY(${virtualItem.start}px)`,
+													}}
+												>
+													<AssetTicker {...asset} />
+												</SelectItem>
+											);
+										})}
+								</div>
+							</div>
+						</>
 					</SelectContent>
 				</Select>
 			</div>
@@ -134,12 +180,27 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 								setAmount(e.target.value);
 							}}
 						/>
-						{selectedAssetBase && <AmountAvailable direction={direction} />}
+						{selectedAsset && <AmountAvailable direction={direction} />}
 					</>
 				) : (
 					<span className="text-5xl">1923</span>
 				)}
 			</div>
+		</div>
+	);
+}
+
+function AssetTicker(props: Asset) {
+	const { name, symbol, logo_URIs } = props;
+
+	const logo = logo_URIs?.svg ?? logo_URIs?.png;
+
+	return (
+		<div className="flex items-center gap-2">
+			{logo && (
+				<Image src={logo} alt={`${symbol} logo`} width={24} height={24} />
+			)}
+			{name}
 		</div>
 	);
 }
