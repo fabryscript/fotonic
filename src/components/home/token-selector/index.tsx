@@ -35,10 +35,12 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 	const onChainChange = useCallback(
 		(value: string) => {
 			router.refresh();
-			selectedAssetsStore.send({ type: "remove" });
+			if (direction === "From") {
+				selectedAssetsStore.send({ type: "remove" });
+			}
 			setChain(value);
 		},
-		[router, setChain],
+		[direction, router, setChain],
 	);
 
 	const { isOpen: isAssetSelectionOpen, toggle: toggleAssetSelection } =
