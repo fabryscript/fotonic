@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nabla-studio/chain-registry": "^0.15.0",
+    "@quirks/next": "^0.1.1",
     "@quirks/react": "^0.14.1",
     "@quirks/store": "^0.25.1",
     "@quirks/wallets": "^0.18.4",
