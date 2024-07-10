@@ -4,8 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "@xstate/react";
 import { useMemo } from "react";
 
-import { memoKeys } from "@nabla-studio/chain-registry";
-
 interface AmountAvailableProps {
 	chain: string;
 }
