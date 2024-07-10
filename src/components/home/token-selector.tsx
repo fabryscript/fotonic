@@ -1,11 +1,12 @@
 "use client";
 
+import { LOADED_CHAINS } from "@/lib/configs";
 import useDirectionalChains from "@/lib/hooks/use-directional-chains";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
 import type { Direction } from "@/lib/types";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
 import type { Asset } from "@nabla-studio/chain-registry";
-import { useChains, useConfig } from "@quirks/react";
+import { useConfig } from "@quirks/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@xstate/react";
 import Image from "next/image";
@@ -45,7 +46,6 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 
 	const [amount, setAmount] = useState<string>("");
 
-	const { accounts } = useChains();
 	const { assetsLists } = useConfig();
 
 	const chainAssets = useMemo(() => {
@@ -82,21 +82,27 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 						/>
 					</SelectTrigger>
 					<SelectContent>
-						{accounts
-							.filter((ac) =>
-								oppositeChain ? ac.chainName !== oppositeChain : true,
-							)
-							.map(({ chainName, chainId }) => {
-								return (
-									<SelectItem
-										key={chainId}
-										value={chainName}
-										className="capitalize"
-									>
-										{chainName}
-									</SelectItem>
-								);
-							})}
+						{LOADED_CHAINS.filter((ac) =>
+							oppositeChain ? ac.chain_name !== oppositeChain : true,
+						).map(({ logo_URIs, chain_name, chain_id }) => {
+							const logo = logo_URIs?.svg ?? logo_URIs?.png;
+
+							return (
+								<SelectItem key={chain_id} value={chain_name}>
+									<div className="flex items-center gap-2 capitalize">
+										{logo && (
+											<Image
+												src={logo}
+												alt={`${chain_name} logo`}
+												width={24}
+												height={24}
+											/>
+										)}
+										{chain_name}
+									</div>
+								</SelectItem>
+							);
+						})}
 					</SelectContent>
 				</Select>
 				{direction === "From" && (
