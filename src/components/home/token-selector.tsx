@@ -1,6 +1,8 @@
 "use client";
 
+import useDirectionalChains from "@/lib/hooks/use-directional-chains";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
+import type { Direction } from "@/lib/types";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
 import type { Asset } from "@nabla-studio/chain-registry";
 import { useChains, useConfig } from "@quirks/react";
@@ -8,7 +10,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@xstate/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useQueryState } from "nuqs";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import {
@@ -21,37 +22,29 @@ import {
 import AmountAvailable from "./token-selector/amount-available";
 
 interface TokenSelectorProps {
-	direction: "From" | "To";
+	direction: Direction;
 }
 
 export default function TokenSelector({ direction }: TokenSelectorProps) {
-	const [chain, setChain] = useQueryState(
-		direction === "From" ? "fromChain" : "toChain",
-	);
-	const [oppositeChain] = useQueryState(
-		direction === "From" ? "toChain" : "fromChain",
-	);
-
+	const { chain, setChain, oppositeChain } = useDirectionalChains(direction);
 	const router = useRouter();
 
-	const selectedAsset = useSelector(
-		selectedAssetsStore,
-		(s) => s.context[direction === "From" ? "from" : "to"],
-	);
+	const selectedAsset = useSelector(selectedAssetsStore, (s) => s.context.from);
 
 	const onChainChange = useCallback(
 		(value: string) => {
 			router.refresh();
-			selectedAssetsStore.send({ type: "remove", direction });
+			selectedAssetsStore.send({ type: "remove" });
 			setChain(value);
 		},
-		[direction, router, setChain],
+		[router, setChain],
 	);
 
 	const { isOpen: isAssetSelectionOpen, toggle: toggleAssetSelection } =
 		useDisclosure();
 
 	const [amount, setAmount] = useState<string>("");
+
 	const { accounts } = useChains();
 	const { assetsLists } = useConfig();
 
@@ -115,7 +108,6 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 								type: "set",
 								// biome-ignore lint/style/noNonNullAssertion: <explanation>
 								asset: queryAssetFromAssetList(chain!, base)!,
-								direction,
 							});
 						}}
 						open={isAssetSelectionOpen}
@@ -186,9 +178,7 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 								setAmount(e.target.value);
 							}}
 						/>
-						{selectedAsset && chain && (
-							<AmountAvailable direction={direction} chain={chain} />
-						)}
+						{selectedAsset && chain && <AmountAvailable chain={chain} />}
 					</>
 				)}
 			</div>

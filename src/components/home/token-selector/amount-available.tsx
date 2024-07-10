@@ -7,17 +7,10 @@ import { useMemo } from "react";
 import { memoKeys } from "@nabla-studio/chain-registry";
 
 interface AmountAvailableProps {
-	direction: "From" | "To";
 	chain: string;
 }
-export default function AmountAvailable({
-	direction,
-	chain,
-}: AmountAvailableProps) {
-	const selectedAsset = useSelector(
-		selectedAssetsStore,
-		(s) => s.context[direction === "From" ? "from" : "to"],
-	);
+export default function AmountAvailable({ chain }: AmountAvailableProps) {
+	const selectedAsset = useSelector(selectedAssetsStore, (s) => s.context.from);
 
 	const decimals = useMemo(
 		() =>
@@ -41,7 +34,7 @@ export default function AmountAvailable({
 	memoKeys.memo_keys;
 
 	if (isLoading) {
-		return <div className="w-16 h-4 rounded-md bg-neutral-400 animate-pulse" />;
+		return <div className="w-32 h-6 rounded-md bg-neutral-400 animate-pulse" />;
 	}
 
 	return (

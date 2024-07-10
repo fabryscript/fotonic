@@ -4,18 +4,14 @@ import { createStore } from "@xstate/store";
 export const selectedAssetsStore = createStore(
 	{
 		from: undefined as Asset | undefined,
-		to: undefined as Asset | undefined,
 	},
 	{
-		set: (
-			_,
-			{ asset, direction }: { direction: "From" | "To"; asset: Asset },
-		) => ({
-			[direction === "From" ? "from" : "to"]: asset,
+		set: (_, { asset }: { asset: Asset }) => ({
+			from: asset,
 		}),
-		remove: (ctx, { direction }: { direction: "From" | "To" }) => ({
+		remove: (ctx) => ({
 			...ctx,
-			[direction === "From" ? "from" : "to"]: undefined,
+			from: undefined,
 		}),
 	},
 );
