@@ -9,9 +9,11 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { LOADED_CHAINS } from "@/lib/configs";
+import { useAmountValidation } from "@/lib/hooks/use-amount-validation";
 import useDirectionalChains from "@/lib/hooks/use-directional-chains";
 import { useDisclosure } from "@/lib/hooks/use-disclosure";
 import type { Direction } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
 import type { Asset } from "@nabla-studio/chain-registry";
 import { useConfig } from "@quirks/react";
@@ -72,6 +74,8 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 				?.assets.find((asset) => asset.base === base),
 		[assetsLists],
 	);
+
+	const { validate, errorMessage, styles } = useAmountValidation();
 
 	return (
 		<div className="flex flex-col items-center justify-between rounded-md w-full py-10">
@@ -173,16 +177,16 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 			<div className="flex flex-col w-full">
 				{direction === "From" && (
 					<>
+						{errorMessage && (
+							<span className="text-red-400">{errorMessage}</span>
+						)}
 						<Input
 							type="number"
 							value={amount}
-							className="h-24 w-full text-5xl bg-transparent px-0"
+							className={cn("h-24 w-full text-5xl bg-transparent px-0", styles)}
 							placeholder="0"
 							onChange={(e) => {
-								if (e.target.value.length > 32) {
-									return;
-								}
-
+								validate({ inputValue: e.target.value });
 								setAmount(e.target.value);
 							}}
 						/>
