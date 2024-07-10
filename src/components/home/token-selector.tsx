@@ -6,7 +6,7 @@ import { useDisclosure } from "@/lib/hooks/use-disclosure";
 import type { Direction } from "@/lib/types";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
 import type { Asset } from "@nabla-studio/chain-registry";
-import { useConfig } from "@quirks/react";
+import { useChains, useConfig } from "@quirks/react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useSelector } from "@xstate/react";
 import Image from "next/image";
@@ -64,9 +64,9 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 	});
 
 	const queryAssetFromAssetList = useCallback(
-		(chainId: string, base: string) =>
+		(chainName: string, base: string) =>
 			assetsLists
-				.find((list) => list.chain_name === chainId)
+				.find((list) => list.chain_name === chainName)
 				?.assets.find((asset) => asset.base === base),
 		[assetsLists],
 	);

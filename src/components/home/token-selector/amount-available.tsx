@@ -1,5 +1,6 @@
 import { formatCoin } from "@/lib/formatters";
 import { selectedAssetsStore } from "@/stores/selectedAssets";
+import { useChains } from "@quirks/react";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "@xstate/react";
 import { useMemo } from "react";
@@ -10,6 +11,8 @@ interface AmountAvailableProps {
 export default function AmountAvailable({ chain }: AmountAvailableProps) {
 	const selectedAsset = useSelector(selectedAssetsStore, (s) => s.context.from);
 
+	const { getAddress, getChain } = useChains();
+
 	const decimals = useMemo(
 		() =>
 			selectedAsset?.denom_units.find(
@@ -18,11 +21,16 @@ export default function AmountAvailable({ chain }: AmountAvailableProps) {
 		[selectedAsset?.denom_units, selectedAsset?.symbol],
 	);
 
+	const chainId = getChain(chain)?.chain_id;
+
+	// biome-ignore lint/style/noNonNullAssertion: <explanation>
+	const walletAddress = getAddress(chainId!);
+
 	const { data, isLoading, isError, error } = useQuery({
 		queryKey: ["balance", selectedAsset?.base],
 		queryFn: async () => {
 			const res = await fetch(
-				`/balances/?chain=${chain}&denom=${selectedAsset?.base}&decimals=${decimals}`,
+				`/balances/?chain=${chain}&denom=${selectedAsset?.base}&decimals=${decimals}&address=${walletAddress}`,
 			);
 
 			return await res.json();

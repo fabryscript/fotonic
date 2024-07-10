@@ -1,17 +1,16 @@
 import { LOADED_CHAINS } from "@/lib/configs";
 import type { NextRequest, NextResponse } from "next/server";
 
-import { getChain } from "@quirks/next";
-
 export async function GET(req: NextRequest, _: NextResponse) {
 	const queryURL = new URL(req.url);
 
 	const chain = queryURL.searchParams.get("chain");
 	const denom = queryURL.searchParams.get("denom");
 	const decimals = queryURL.searchParams.get("decimals");
+	const address = queryURL.searchParams.get("address");
 
-	if (!chain || !denom || !decimals)
-		throw new BalanceQueryError("Chain, denom or decimals missing");
+	if (!chain || !denom || !decimals || !address)
+		throw new BalanceQueryError("Chain, denom, decimals or address missing");
 
 	const chainInfos = LOADED_CHAINS.find(
 		(loadedChain) => loadedChain.chain_name === chain,
@@ -36,12 +35,8 @@ export async function GET(req: NextRequest, _: NextResponse) {
 		restEndpoint: chainApiEndpoints,
 	});
 
-	const chainAddress = getChain(chain).address;
-
-	if (!chainAddress) throw new BalanceQueryError(`Missing ${chain} address`);
-
 	const { balance } = await client.cosmos.bank.v1beta1.balance({
-		address: chainAddress,
+		address,
 		denom,
 	});
 
