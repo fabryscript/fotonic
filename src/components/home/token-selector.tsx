@@ -1,4 +1,8 @@
+"use client";
+
+import { selectedAssetsStore } from "@/stores/selectedAssets";
 import { useChains, useConfig } from "@quirks/react";
+import { useSelector } from "@xstate/react";
 import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { useCallback, useState } from "react";
@@ -10,6 +14,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../ui/select";
+import AmountAvailable from "./token-selector/amount-available";
 
 interface TokenSelectorProps {
 	direction: "From" | "To";
@@ -20,21 +25,30 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 		direction === "From" ? "fromChain" : "toChain",
 	);
 
-	const [asset, setAsset] = useQueryState(
-		direction === "From" ? "fromAsset" : "toAsset",
+	const selectedAssetBase = useSelector(
+		selectedAssetsStore,
+		(s) => s.context[direction === "From" ? "from" : "to"]?.base,
 	);
 
 	const onChainChange = useCallback(
 		(value: string) => {
-			setAsset(null);
+			selectedAssetsStore.send({ type: "remove", direction });
 			setChain(value);
 		},
-		[setAsset, setChain],
+		[direction, setChain],
 	);
 
 	const [amount, setAmount] = useState<string>("");
 	const { accounts } = useChains();
 	const { assetsLists } = useConfig();
+
+	const queryAssetFromAssetList = useCallback(
+		(chainId: string, base: string) =>
+			assetsLists
+				.find((list) => list.chain_name === chainId)
+				?.assets.find((asset) => asset.base === base),
+		[assetsLists],
+	);
 
 	return (
 		<div className="flex flex-col items-center justify-between h-[200px] rounded-md w-full py-10">
@@ -60,8 +74,15 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 				</Select>
 				<Select
 					disabled={!chain}
-					value={asset ? asset : undefined}
-					onValueChange={setAsset}
+					value={selectedAssetBase}
+					onValueChange={(base) => {
+						selectedAssetsStore.send({
+							type: "set",
+							// biome-ignore lint/style/noNonNullAssertion: <explanation>
+							asset: queryAssetFromAssetList(chain!, base)!,
+							direction,
+						});
+					}}
 				>
 					<SelectTrigger>
 						<SelectValue placeholder={`${direction} asset`} />
@@ -69,7 +90,8 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 					<SelectContent>
 						{assetsLists
 							.find((list) => list.chain_name === chain)
-							?.assets.map(({ name, symbol, logo_URIs }, i) => {
+							?.assets.map((asset, i) => {
+								const { name, symbol, logo_URIs, base } = asset;
 								const logo = logo_URIs?.svg ?? logo_URIs?.png;
 								return (
 									<SelectItem
@@ -77,7 +99,7 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 											// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 											i
 										}`}
-										value={symbol}
+										value={base}
 									>
 										<div className="flex items-center gap-2">
 											{logo && (
@@ -112,9 +134,7 @@ export default function TokenSelector({ direction }: TokenSelectorProps) {
 								setAmount(e.target.value);
 							}}
 						/>
-						<span className="font-medium text-neutral-500">
-							Available: 0.0005 {asset}
-						</span>
+						{selectedAssetBase && <AmountAvailable direction={direction} />}
 					</>
 				) : (
 					<span className="text-5xl">1923</span>
